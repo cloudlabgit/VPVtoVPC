@@ -33,7 +33,7 @@ variable "key_path" {
   default = "/app/id_rsa_example.pub"
 }
 
-variable "access_key" {}
+variable "aws_access_key" {}
 
-variable "secret_key" {}
+variable "aws_secret_key" {}
 

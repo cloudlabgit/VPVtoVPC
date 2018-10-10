@@ -1,25 +1,30 @@
 #!/bin/bash
 # Run the provisioning example.
 # We have a few prerequisites
+
+if [[ ! -x "$(which which)" ]]
+then
+        yum -y install which
+fi
+
 if [[ ! -x "$(which wget)" ]]
 then
-	sudo yum -y install wget
+	yum -y install wget
 fi
 if [[ ! -x "$(which terraform)" ]]
 then 
 	wget https://releases.hashicorp.com/terraform/0.11.8/terraform_0.11.8_linux_amd64.zip
 	unzip terraform_0.11.8_linux_amd64.zip
-	sudo mv terraform /usr/local/bin/
+	mv terraform /usr/bin/
+        rm -rf terraform_0.11.8_linux_amd64.zip
 fi
 if [[ ! -x "$(which curl)" ]]
 then
-	sudo yum -y install curl
+	yum -y install curl
 fi
-if [[ ! -x "$(which terraform)" ]]
+if [[ ! -x "$(which chef-solo)" ]]
 then 
-	wget https://releases.hashicorp.com/terraform/0.11.8/terraform_0.11.8_linux_amd64.zip
-	unzip terraform_0.11.8_linux_amd64.zip
-	sudo mv terraform /usr/local/bin/
+	curl -L https://www.opscode.com/chef/install.sh | bash
 fi
 [[ ! -x "$(which ssh)" ]] && echo "Couldn't find ssh in your PATH." && exit 1
 [[ ! -x "$(which ssh-keygen)" ]] && echo "Couldn't find ssh-keygen in your PATH." && exit 1
@@ -41,8 +46,8 @@ MANAGEMENT_IP=$(curl -s http://ipinfo.io/ip)
 
 # Run terraform to create the resources
 cd terraform
-##terraform plan -var "management_ip=$MANAGEMENT_IP"
-terraform apply -var "management_ip=$MANAGEMENT_IP"
+terraform plan -var "management_ip=$MANAGEMENT_IP" -var-file=terraform.tfvars
+##terraform apply -var "management_ip=$MANAGEMENT_IP"
 
 # Verify that the load balancer works as expected
 echo "Provisioning complete:"
